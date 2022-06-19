@@ -1,8 +1,8 @@
 # GitHub Actionsの概要
 
-Last Change: 2022-06-19 11:26:46.
+Last Change: 2022-06-19 13:14:14.
 
-[公式のドキュメント](https://docs.github.com/en/actions)より。
+[公式のドキュメント](https://docs.github.com/en/actions)のLearn GuitHub Actionsより。
 
 ## GitHub Actionsを理解する
 
@@ -74,6 +74,7 @@ https://docs.github.com/en/actions/learn-github-actions/contexts
 - `github` というコンテキストの場合、フィールドのアクセスは `github['sha']` とか `github.sha` のようになる
 - 以下の例で `github.ref` はコンテキストにあたる
   - ブランチをチェックしており、これでジョブ全体を実行するかどうかを制御している
+- デバッグのために、contextの内容をログに出力できる
 
 ```yaml
 name: CI
@@ -86,5 +87,28 @@ jobs:
       - run: echo "Deploying to production server on branch $GITHUB_REF"
 ```
 
-- デバッグのために、contextの内容をログに出力できる
+## 環境変数
+
+https://docs.github.com/en/actions/learn-github-actions/environment-variables
+
+- デフォルトの環境変数と、yamlで指定するカスタム環境変数がある
+- カスタム環境変数はスコープに注意
+  - ジョブ単位だったり、ステップ単位で定義できたりする？
+- 環境変数の参照の仕方は、ランナーOSによって変える必要がある
+  - winの場合は慣れない表記になるので注意
+- **contextはワークフローがスコープで、環境変数はジョブ（ランナーOS）がスコープ**
+  - contextのほうが「広い、大きい」概念であり、実際 `env.DAY_OF_WEEK` みたいな感じでcontext経由で環境変数にアクセスすることもできる
+- ジョブのあるステップで値を生成した場合、その値を既存または新規の環境変数に代入し、これを `GITHUB_ENV` 環境ファイルに書き込むことにより、同じジョブの後続ステップで値を使用できる
+  - 任意の環境変数に代入できるわけではない（？）
+
+## 使用上限、請求、管理
+
+https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration
+
+- 公開リポジトリであれば無料（無制限？）、非公開リポジトリだと上限がある
+- 公開リポジトリでも、ジョブやワークフローの実行時間に上限があったり、APIリクエストのタイムレートがあったり、一度に実行できるジョブの上限数がある
+  - GASの使用制限っぽい雰囲気
+- 不必要なワークフローの実行を防ぐために、スケジュールされたワークフローは自動的に無効にあることがある
+  - 公開リポジトリをフォークすると、スケジュールされたワークフローはデフォルトで無効化される
+  - 公開リポジトリでは、60日間リポジトリのアクティビティが発生しないと、スケジュールされたワークフローは自動的に無効になる
 
